@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{08E5AD1C-68F5-488A-B90E-804E42C255EC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>BDAnimationModules</RootNamespace>
+    <AssemblyName>BDAnimationModules</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <ReleaseVersion>0.2</ReleaseVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Compile Include="AnimatedContainer.cs" />
+    <Compile Include="AnimatedEngine.cs" />
+    <Compile Include="LoopedKConverterAnimation.cs" />
+    <Compile Include="AnimatedRCS.cs" />
+    <Compile Include="Utils.cs" />
+    <Compile Include="GenericLoopAnimation.cs" />
+    <Compile Include="BDEngineCase.cs" />
+    <Compile Include="AnimatedThrust.cs" />
+    <Compile Include="BDGenericAnimationState.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Kethane, Version=1.0.5122.32700, Culture=neutral">
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <Package>D:\Games\KSP\ksp 23.5 Mucho mods\GameData\Kethane\Plugins\Kethane.dll</Package>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\Games\KSP\23 Tester\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral">
+      <Private>False</Private>
+      <Package>D:\Games\KSP\ksp 23.5 ARM\KSP_Data\Managed\UnityEngine.dll</Package>
+    </Reference>
+  </ItemGroup>
+</Project>
