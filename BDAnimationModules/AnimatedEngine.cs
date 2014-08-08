@@ -19,8 +19,10 @@ namespace BDAnimationModules
 		private ModuleEngines modEng = null;
 		private ModuleEnginesFX modEngFX = null;
 		private AnimationState[]  engineStates;
-		private bool userActivated = false;
 		private bool engineIsFX = false;
+		
+		private float oMaxThrust;
+		private float oMinThrust;
 
 		public override void OnStart(PartModule.StartState state)
 		{
@@ -30,85 +32,57 @@ namespace BDAnimationModules
 			}catch(NullReferenceException e){Debug.Log ("NRE while setting up animation: "+e);}
 
 
-			try{
-				foreach (var me in this.part.FindModulesImplementing<ModuleEngines>())
-				{
-					engineIsOn = me.EngineIgnited;
-					modEng = me;
-					engineIsFX = false;
-				}
-			}catch(NullReferenceException e){Debug.Log ("NRE while finding ModuleEngines: "+e);}
-
-			try{
-				foreach (var me in this.part.FindModulesImplementing<ModuleEnginesFX>())
-				{
-					engineIsOn = me.EngineIgnited;
-					modEngFX = me;
-					engineIsFX = true;
-				}
-			}catch(NullReferenceException e){Debug.Log ("NRE while finding ModuleEnginesFX: "+e);}
-
-			try{
-				if (engineIsOn)
-				{
-					foreach (var anim in engineStates)
-					{
-						anim.normalizedTime = 1;
-					}
-				}
-				else
-				{
-					foreach (var anim in engineStates)
-					{
-						anim.normalizedTime = 0;
-					}
-				}
-			}catch(NullReferenceException e){Debug.Log ("NRE on anim initial state set: "+e);}
-
-
-		}
-		
-		//Original OnUpdate (0.1)
-		/**
-		public override void OnUpdate()
-		{
-			bool engineWas = engineIsOn;
-			engineIsOn = modEng.EngineIgnited;
-			if(engineStates.All(s => s.normalizedTime>=1) || engineStates.All (s => s.normalizedTime<=0))
+			
+			foreach (var me in this.part.FindModulesImplementing<ModuleEngines>())
 			{
-				foreach(var anim in engineStates){anim.speed = 0;}
+				engineIsOn = me.EngineIgnited;
+				modEng = me;
+				engineIsFX = false;
+			}
+		
+
+		
+			foreach (var me in this.part.FindModulesImplementing<ModuleEnginesFX>())
+			{
+				engineIsOn = me.EngineIgnited;
+				modEngFX = me;
+				engineIsFX = true;
 			}
 			
-			if (engineWas != engineIsOn)
+
+			foreach(var anim in engineStates)
 			{
 				if (engineIsOn)
 				{
-					foreach (var anim in engineStates)
-					{
-						anim.normalizedTime = 0;
-						anim.speed = 1;
-						//Debug.Log ("played forward");
-					}
+						anim.normalizedTime = 1;
 				}
 				else
 				{
-					foreach (var anim in engineStates)
-					{
-						anim.normalizedTime = 1;
-						anim.speed = -1;
-						//Debug.Log ("played reverse");
-					}
+						anim.normalizedTime = 0;
 				}
 			}
+			
+			if(modEng!=null)
+			{
+				oMaxThrust = modEng.maxThrust;
+				oMinThrust = modEng.minThrust;
+				modEng.maxThrust = 0;
+				modEng.minThrust = 0;
+			}
+			if(modEngFX!=null)
+			{
+				oMaxThrust = modEngFX.maxThrust;
+				oMinThrust = modEngFX.minThrust;
+				modEngFX.maxThrust = 0;
+				modEngFX.minThrust = 0;
+			}
+			
 		}
 		
-		**/
 		
-		//New OnUpdate (waits till animation before activating Engine)
 		
 		public override void OnUpdate()
 		{
-			Debug.Log ("engineIsFX = "+engineIsFX);
 			if(!engineIsFX)
 			{
 				engineIsOn = modEng.EngineIgnited;
@@ -131,48 +105,45 @@ namespace BDAnimationModules
 					anim.speed = 0;
 					anim.normalizedTime = 0;
 				}
-			}
-
-
 			
-			if(engineIsOn)
-			{
-				userActivated = true;
-				foreach(var anim in engineStates)
+
+				if(engineIsOn)
 				{
 					anim.speed = 1;
 				}
-			}
-			foreach(var anim in engineStates)
-			{
-				if (anim.normalizedTime < WaitForAnimation)
+				else
 				{
-					if(!engineIsFX)
-					{
-						modEng.Shutdown();
-					}
-					else
-					{
-						modEngFX.Shutdown ();
-					}
-				}
-				if (anim.normalizedTime >= WaitForAnimation && userActivated)
-				{
-					if(!engineIsFX)
-					{
-						modEng.Activate();
-					}
-					else
-					{
-						modEngFX.Activate();
-					}
-					userActivated = false;
-				}
-				if (anim.normalizedTime >= WaitForAnimation && !engineIsOn)
-				{
-					//userActivated = false;
 					anim.speed = -1;
 				}
+				
+			
+				if (anim.normalizedTime < WaitForAnimation && anim.normalizedTime > 0)
+				{
+					if(!engineIsFX)
+					{
+						modEng.maxThrust = 0;
+						modEng.minThrust = 0;
+					}
+					else
+					{
+						modEngFX.maxThrust = 0;
+						modEng.minThrust = 0;
+					}
+				}
+				if (anim.normalizedTime >= WaitForAnimation)
+				{
+					if(!engineIsFX)
+					{
+						modEng.maxThrust = oMaxThrust;
+						modEng.minThrust = oMinThrust;
+					}
+					else
+					{
+						modEngFX.maxThrust = oMaxThrust;
+						modEngFX.minThrust = oMinThrust;
+					}
+				}
+				
 			}
 			
 		}

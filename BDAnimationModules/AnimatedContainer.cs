@@ -59,15 +59,13 @@ namespace BDAnimationModules
 			resMax = animatedResource.maxAmount;
 			normalizedRes = resAmount/resMax;
 			
-			
-			
 			foreach (var cs in containerStates)
 			{
 				cs.normalizedTime = (float)normalizedRes;
 			}
-			
-			
 		}
+		
+		
 		
 		
 	 	public static AnimationState[] SetUpAnimation(string animationName, Part part)  //Thanks Majiir!
@@ -85,40 +83,27 @@ namespace BDAnimationModules
             return states.ToArray();
         }
 		
-		//for some reason OnSave causes nullReferenceExceptions...
 		
-		/**public override void OnSave(ConfigNode node)
+		
+		
+	}
+	
+	[KSPAddon(KSPAddon.Startup.EditorAny, false)]
+	public class AnimContainerEditorUpdate : MonoBehaviour
+	{
+		void Update()
 		{
-			resAmount = animatedResource.amount;
-			resMax = animatedResource.maxAmount;
-			normalizedRes = resAmount/resMax;
-			
-			
-			
-			foreach (var cs in containerStates)
+			if(HighLogic.LoadedSceneIsEditor)
 			{
-				cs.normalizedTime = (float)normalizedRes;
+				foreach(Part p in EditorLogic.fetch.ship.Parts)
+				{
+					foreach(AnimatedContainer ac in p.FindModulesImplementing<AnimatedContainer>())
+					{
+						ac.OnUpdate();	
+					}
+				}
 			}
 		}
-		**/
-		
-		/**private void updateAnim()
-		{
-			resAmount = animatedResource.amount;
-			resMax = animatedResource.maxAmount;
-			normalizedRes = resAmount/resMax;
-			
-			
-			
-			foreach (var cs in containerStates)
-			{
-				cs.normalizedTime = (float)normalizedRes;
-			}
-			
-		}
-		**/
-		
-		
 	}
 }
 
