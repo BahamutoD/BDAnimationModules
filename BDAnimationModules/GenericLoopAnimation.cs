@@ -13,9 +13,9 @@ namespace BDAnimationModules
 		[KSPField(isPersistant = false)]
 		public string loopName;
 		[KSPField(isPersistant = true)]
-		public string StartGUIName="null";
+		public string StartGUIName = "null";
 		[KSPField(isPersistant = true)]
-		public string EndGUIName="null";
+		public string EndGUIName = "null";
 		
 		private AnimationState[] deployStates;
 		private AnimationState[] loopStates;
