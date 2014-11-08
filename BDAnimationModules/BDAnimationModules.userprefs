@@ -1,0 +1,32 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="BDAdjustableLandingGear.cs">
+    <Files>
+      <File FileName="SurfaceWalker.cs" Line="51" Column="5" />
+      <File FileName="BDVTOLAnimator.cs" Line="35" Column="3" />
+      <File FileName="BDVTOLDrivenEngineAnimator.cs" Line="12" Column="3" />
+      <File FileName="BDAdjustableLandingGear.cs" Line="362" Column="18" />
+      <File FileName="BDModuleLookAtConstraint.cs" Line="39" Column="30" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="BDAnimationModules" expanded="True">
+            <Node name="References" expanded="True" />
+            <Node name="BDAdjustableLandingGear.cs" selected="True" />
+          </Node>
+        </State>
+      </Pad>
+      <Pad Id="ClassPad">
+        <State expanded="True" selected="True" />
+      </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State />
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

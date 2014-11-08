@@ -42,19 +42,19 @@
     <Compile Include="AnimatedThrust.cs" />
     <Compile Include="BDGenericAnimationState.cs" />
     <Compile Include="MouseAimLight.cs" />
+    <Compile Include="SurfaceWalker.cs" />
+    <Compile Include="BDVTOLAnimator.cs" />
+    <Compile Include="BDVTOLDrivenEngineAnimator.cs" />
+    <Compile Include="BDAdjustableLandingGear.cs" />
+    <Compile Include="BDModuleLookAtConstraint.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Kethane, Version=1.0.5122.32700, Culture=neutral">
-      <Private>False</Private>
-      <SpecificVersion>False</SpecificVersion>
-      <Package>D:\Games\KSP\ksp 23.5 Mucho mods\GameData\Kethane\Plugins\Kethane.dll</Package>
-    </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\Games\KSP\KSP 0.24.2 32 bit\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\..\Games\KSP\KSP 0.25.0 - Mod Dev\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral">
       <Private>False</Private>
-      <Package>D:\Games\KSP\KSP 0.24.2 32 bit\KSP_Data\Managed\UnityEngine.dll</Package>
+      <Package>D:\Games\KSP\KSP 0.25.0 - Mod Dev\KSP_Data\Managed\UnityEngine.dll</Package>
     </Reference>
   </ItemGroup>
 </Project>
