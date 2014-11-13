@@ -120,12 +120,16 @@ namespace BDAnimationModules
 		[KSPField(isPersistant = false)]
 		public bool mirrorRetractedWheel = false;
 		
-		AnimationState[] animationStates;
+		AnimationState anim;
+		Animation emptyAnimation;
 		
 		
 		//persistent fields
 		[KSPField(isPersistant = true)]
 		public GearStates CurrentState = GearStates.Deploying;
+		
+		[KSPField(isPersistant = true)]
+		public GearStates TargetState = GearStates.Deployed;
 		
 		[KSPField(isPersistant = true, guiActiveEditor = false)]
 		public bool isMirrored = false;
@@ -248,8 +252,8 @@ namespace BDAnimationModules
 		{
 			
 			
-			animationStates = Utils.SetUpAnimation(animationName, part);
-			
+			emptyAnimation = part.FindModelAnimators(animationName)[0];
+			anim = emptyAnimation[animationName];
 			
 			//set max and min for wheel height
 			var wheelHeightTweakable = (UI_FloatRange) Fields["wheelHeight"].uiControlEditor;
@@ -298,31 +302,35 @@ namespace BDAnimationModules
 			{
 				animNormTimeP = 0;	
 			}
-			foreach(AnimationState anim in animationStates)
+		
+			
+			anim.normalizedTime = animNormTimeP;
+			//Debug.LogWarning("anim norm time: "+anim.normalizedTime);
+			
+			float animNormTime = 1-animNormTimeP;	
+			animNormTime = Mathf.Clamp01(animNormTime);
+			
+			if(animNormTime >= 1)
 			{
-				anim.normalizedTime = animNormTimeP;
-				//Debug.LogWarning("anim norm time: "+anim.normalizedTime);
-				
-				float animNormTime = 1-anim.normalizedTime;	
-				animNormTime = Mathf.Clamp01(animNormTime);
-				
-				if(animNormTime >= 1)
-				{
-					CurrentState = GearStates.Deployed;
-				}
-				else if(animNormTime <= 0)
-				{
-					CurrentState = GearStates.Retracted;
-				}	
-				else if(anim.speed < 0)
-				{
-					CurrentState = GearStates.Deploying;	
-				}
-				else
-				{
-					CurrentState = GearStates.Retracting;	
-				}
+				//emptyAnimation.Stop();
+				//anim.normalizedTime = 0;
+				CurrentState = GearStates.Deployed;
 			}
+			else if(animNormTime <= 0)
+			{
+				//emptyAnimation.Stop();
+				//anim.normalizedTime = 1;
+				CurrentState = GearStates.Retracted;
+			}	
+			else if(anim.speed < 0)
+			{
+				CurrentState = GearStates.Deploying;	
+			}
+			else
+			{
+				CurrentState = GearStates.Retracting;	
+			}
+		
 			
 			//Debug.LogWarning("gear current state: "+CurrentState);
 			
@@ -469,55 +477,57 @@ namespace BDAnimationModules
 			
 			//get animation normalized time and current state
 			float animNormTime = 0;
-			foreach(var anim in animationStates)
+		
+			if(!hasLoaded)
 			{
-				if(!hasLoaded)
+				//emptyAnimation.Stop();
+				anim.normalizedTime = animNormTimeP;	
+				hasLoaded = true;
+			}
+			else
+			{
+				animNormTimeP = anim.normalizedTime;
+				animSpeedP = anim.speed;
+			}
+			
+			deployTime = anim.length;
+			anim.normalizedTime = Mathf.Clamp01(anim.normalizedTime);
+			if(emptyAnimation.isPlaying) animNormTime = 1-anim.normalizedTime;	
+			
+			foreach(WheelCollider wc in part.FindModelComponents<WheelCollider>())
+			{
+				if(animNormTime < 0.2f && CurrentState != GearStates.Deployed)	
 				{
-					anim.speed = 0;
-					anim.normalizedTime = animNormTimeP;	
-					hasLoaded = true;
+					wc.radius = 0.0001f;	
 				}
 				else
 				{
-					animNormTimeP = anim.normalizedTime;
-					animSpeedP = anim.speed;
-				}
-				
-				deployTime = anim.length;
-				anim.normalizedTime = Mathf.Clamp01(anim.normalizedTime);
-				animNormTime = 1-anim.normalizedTime;	
-				
-				foreach(WheelCollider wc in part.FindModelComponents<WheelCollider>())
-				{
-					if(animNormTime < 0.2f)	
-					{
-						wc.radius = 0.0001f;	
-					}
-					else
-					{
-						wc.radius = wheelRadius;	
-					}
-				}
-				
-				
-				
-				if(animNormTime >= 1)
-				{
-					CurrentState = GearStates.Deployed;
-				}
-				else if(animNormTime <= 0)
-				{
-					CurrentState = GearStates.Retracted;
-				}	
-				else if(anim.speed < 0)
-				{
-					CurrentState = GearStates.Deploying;	
-				}
-				else
-				{
-					CurrentState = GearStates.Retracting;	
+					wc.radius = wheelRadius;	
 				}
 			}
+			
+			
+			
+			
+		
+			if(animNormTime == 0 && !emptyAnimation.isPlaying)
+			{
+				CurrentState = TargetState;
+			}	
+			else if(anim.speed < 0)
+			{
+				TargetState = GearStates.Deployed;
+				CurrentState = GearStates.Deploying;	
+			}
+			else if(anim.speed > 0)
+			{
+				TargetState = GearStates.Retracted;
+				CurrentState = GearStates.Retracting;	
+			}
+			
+			
+			
+			
 			
 			UpdateDoors();
 			
@@ -526,6 +536,14 @@ namespace BDAnimationModules
 			deployTime -= 90/doorSpeed;
 			
 			
+			UpdateGear();
+			
+			
+			SavePosAndRot();
+		}
+		
+		void UpdateGear()
+		{
 			//speeds
 			float deployAngularSpeed;
 			float tiltAngularSpeed;
@@ -557,6 +575,7 @@ namespace BDAnimationModules
 			float pistonTransAmount = pistonTransSpeed * TimeWarp.fixedDeltaTime;
 			
 			//moving stuff w/anim
+		
 			if((CurrentState == GearStates.Deploying && doorsAreOpen) || CurrentState == GearStates.Deployed)
 			{
 				deployTransform.localRotation = Quaternion.RotateTowards(deployTransform.localRotation, deployTargetTransform.localRotation, deployAngleAmount);
@@ -580,10 +599,8 @@ namespace BDAnimationModules
 				}	
 			}
 			
-			
-			SavePosAndRot();
+	
 		}
-		
 		
 		void SavePosAndRot()
 		{
@@ -742,17 +759,22 @@ namespace BDAnimationModules
 			
 			
 		}
-		/*
+		
 		public void OnGUI()
 		{
+			/*
 			float angleToGround = Vector3.Angle(deployedWheelTargetTransform.forward, Vector3.up);
 			
 			GUI.Label(new Rect(50,50,200,200), 
-				"local leg angle: "+ tiltTargetTransform.localEulerAngles
+				"anim is playing: "+ emptyAnimation.isPlaying
+				+ "\n anim norm time: "+anim.normalizedTime.ToString("0.00")
+				+ "\n gear state: "+CurrentState
 				);
 				
+			*/
+				
 		}
-		*/
+		
 		
 		
 		//Thanks FlowerChild
