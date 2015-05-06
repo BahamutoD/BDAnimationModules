@@ -71,12 +71,9 @@ namespace BDAnimationModules
 				Actions["AGToggleGimbal"].active = true;
 				Events["GuiToggleGimbal"].guiActive = true;
 				Events["GuiToggleGimbal"].guiActiveEditor = true;
-				
+
 				foreach(ModuleGimbal mgg in this.part.FindModulesImplementing<ModuleGimbal>())
 				{
-					mgg.Actions["ToggleAction"].active = false;	
-					mgg.Events["LockGimbal"].active = false;
-					mgg.Events["FreeGimbal"].active = false;
 					gimbalStatus = !mgg.gimbalLock;
 				}
 			}
@@ -104,7 +101,8 @@ namespace BDAnimationModules
 					anim.normalizedTime = modEngFX.finalThrust/modEngFX.maxThrust;
 				}
 			}
-			
+
+			/*
 			if(disableGimbalToggle)
 			{
 				foreach(ModuleGimbal mgg in this.part.FindModulesImplementing<ModuleGimbal>())
@@ -113,6 +111,7 @@ namespace BDAnimationModules
 					mgg.Events["FreeGimbal"].active = false;
 				}
 			}
+			*/
 			
 			
 		}
@@ -123,11 +122,17 @@ namespace BDAnimationModules
 			{
 				foreach(ModuleGimbal mgg in this.part.FindModulesImplementing<ModuleGimbal>())
 				{
-					mgg.Actions["ToggleAction"].active = false;	
-					mgg.Events["LockGimbal"].active = false;
-					mgg.Events["LockGimbal"].guiActiveEditor = false;
-					mgg.Events["FreeGimbal"].active = false;
-					mgg.Events["FreeGimbal"].guiActiveEditor = false;
+					mgg.Actions["FreeAction"].active = false;	
+					mgg.Actions["LockAction"].active = false;
+					mgg.Actions["ToggleAction"].active = false;
+					mgg.Fields["gimbalLock"].guiActive = false;
+					mgg.Fields["gimbalLock"].guiActiveEditor = false;
+					mgg.Fields["gimbalLimiter"].guiActive = false;
+					mgg.Fields["gimbalLimiter"].guiActiveEditor = false;
+					//mgg.Events["LockGimbal"].active = false;
+					//mgg.Events["LockGimbal"].guiActiveEditor = false;
+					//mgg.Events["FreeGimbal"].active = false;
+					//mgg.Events["FreeGimbal"].guiActiveEditor = false;
 				}
 			}
 			else

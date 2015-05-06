@@ -1,19 +1,19 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" PreferredExecutionTarget="MonoDevelop.Default" />
   <MonoDevelop.Ide.Workbench ActiveDocument="BDAdjustableLandingGear.cs">
     <Files>
-      <File FileName="SurfaceWalker.cs" Line="51" Column="5" />
-      <File FileName="BDVTOLAnimator.cs" Line="35" Column="3" />
-      <File FileName="BDVTOLDrivenEngineAnimator.cs" Line="12" Column="3" />
-      <File FileName="BDAdjustableLandingGear.cs" Line="362" Column="18" />
-      <File FileName="BDModuleLookAtConstraint.cs" Line="39" Column="30" />
+      <File FileName="BDAdjustableLandingGear.cs" Line="18" Column="4" />
+      <File FileName="AnimatedThrust.cs" Line="1" Column="1" />
+      <File FileName="SurfaceWalker.cs" Line="17" Column="28" />
+      <File FileName="FSwheel\FSBDwheel.cs" Line="844" Column="19" />
+      <File FileName="Utils.cs" Line="41" Column="4" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="BDAnimationModules" expanded="True">
-            <Node name="References" expanded="True" />
-            <Node name="BDAdjustableLandingGear.cs" selected="True" />
+            <Node name="FSwheel" expanded="True" />
+            <Node name="BDGenericAnimationState.cs" selected="True" />
           </Node>
         </State>
       </Pad>

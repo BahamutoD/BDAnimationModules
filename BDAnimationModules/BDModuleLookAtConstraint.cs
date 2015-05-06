@@ -25,7 +25,7 @@ namespace BDAnimationModules
 			rotator = part.FindModelTransform(rotatorsName);
 		}
 		
-		public void FixedUpdate()
+		public void LateUpdate()
 		{
 			Vector3 upAxisV = rotator.up;	
 			

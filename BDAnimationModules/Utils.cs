@@ -22,6 +22,24 @@ namespace BDAnimationModules
             }
             return states.ToArray();
         }
+
+		public static float RoundToMultiple(float f, float multiple)
+		{
+			float factor = 1/multiple;
+			f *= factor;
+			f = Mathf.Round(f);
+			f /= factor;
+			return f;
+		}
+
+		public static float SignedAngle(Vector3 fromDirection, Vector3 toDirection, Vector3 referenceRight)
+		{
+			float angle = Vector3.Angle(fromDirection, toDirection);
+			float sign = Mathf.Sign(Vector3.Dot(toDirection, referenceRight));
+			float finalAngle = sign * angle;
+			return finalAngle;
+		}
 	}
+
 }
 

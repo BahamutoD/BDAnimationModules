@@ -12,24 +12,24 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <DebugSymbols>true</DebugSymbols>
+    <DebugSymbols>True</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>False</Optimize>
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
-    <ConsolePause>false</ConsolePause>
+    <ConsolePause>False</ConsolePause>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>none</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>False</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
-    <ConsolePause>false</ConsolePause>
+    <ConsolePause>False</ConsolePause>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -47,14 +47,21 @@
     <Compile Include="BDVTOLDrivenEngineAnimator.cs" />
     <Compile Include="BDAdjustableLandingGear.cs" />
     <Compile Include="BDModuleLookAtConstraint.cs" />
+    <Compile Include="FSwheel\FSBDwheel.cs" />
+    <Compile Include="FSwheel\FSBDWheelList.cs" />
+    <Compile Include="FSwheel\FSBDWheelClass.cs" />
+    <Compile Include="FSwheel\FSBDparticleFX.cs" />
+    <Compile Include="BDTextureSwitch.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\Games\KSP\KSP 0.25.0 - Mod Dev\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>C:\Games\KSP 1.0.2 - Mod Dev\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral">
-      <Private>False</Private>
-      <Package>D:\Games\KSP\KSP 0.25.0 - Mod Dev\KSP_Data\Managed\UnityEngine.dll</Package>
+    <Reference Include="UnityEngine">
+      <HintPath>C:\Games\KSP 1.0.2 - Mod Dev\KSP_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="FSwheel\" />
   </ItemGroup>
 </Project>
