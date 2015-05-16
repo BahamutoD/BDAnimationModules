@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -153,6 +154,8 @@ namespace BDAnimationModules
 		
 		[KSPField(isPersistant = true)]
 		public GearStates TargetState = GearStates.Deployed;
+
+		GearStates previousState;
 		
 		[KSPField(isPersistant = true, guiActiveEditor = false)]
 		public bool isMirrored = false;
@@ -433,7 +436,7 @@ namespace BDAnimationModules
 
 			if(part.FindModelTransform(boundsCollider)!=null)
 			{
-				Destroy(part.FindModelTransform(boundsCollider).gameObject);
+				DestroyImmediate(part.FindModelTransform(boundsCollider).gameObject);
 			}
 			
 			if(!HighLogic.LoadedSceneIsEditor)
@@ -443,6 +446,9 @@ namespace BDAnimationModules
 			RefreshTweakables();
 
 			wheelColliders = part.FindModelComponents<WheelCollider>();
+
+			previousState = CurrentState;
+			part.SendMessage("GeometryPartModuleRebuildMeshData");
 		}
 
 		public override void OnLoad (ConfigNode node)
@@ -644,6 +650,28 @@ namespace BDAnimationModules
 			UpdateWheelAlignment();
 
 			SavePosAndRot();
+
+			UpdateFAR();
+		}
+
+		void UpdateFAR()
+		{
+			if(previousState!=CurrentState)
+			{
+				if(CurrentState == GearStates.Retracted || CurrentState == GearStates.Deployed)
+				{
+					StartCoroutine(DelayedMeshUpdate());
+				}
+			}
+
+			previousState = CurrentState;
+		}
+
+		IEnumerator DelayedMeshUpdate()
+		{
+			yield return new WaitForSeconds(1.25f);
+			Debug.Log ("BDAdjustableLandingGear : Rebuilding mesh data.");
+			part.SendMessage("GeometryPartModuleRebuildMeshData");
 		}
 
 		void UpdateWheelAlignment()
@@ -770,6 +798,7 @@ namespace BDAnimationModules
 		
 		public void OnEditorAttach()
 		{
+			Debug.Log ("BDADJ oneditorattach");
 			foreach(Part pSym in part.symmetryCounterparts)
 			{
 				if(pSym!=part && isMirrored == false)
@@ -933,7 +962,8 @@ namespace BDAnimationModules
 
 				float vPosMult = vesselWheelPos.y > vessel.localCoM.y ? 1 : -1;
 
-				float yawValue = vessel.ctrlState.yaw;
+				float yawValue;// = vessel.ctrlState.yaw;
+				yawValue = vessel.ctrlState.wheelSteer;
 				float reverseFactor = reverseSteering ? -1 : 1;
 				float speedFactor = Mathf.Clamp01((40-(float)vessel.srfSpeed)/40);
 				float targetAngle = yawValue * maxSteerAngle * reverseFactor * speedFactor * vPosMult;

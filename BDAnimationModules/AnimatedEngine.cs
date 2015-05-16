@@ -20,25 +20,34 @@ namespace BDAnimationModules
 		private ModuleEnginesFX modEngFX = null;
 		private AnimationState[]  engineStates;
 		private bool engineIsFX = false;
+
+		[KSPEvent(guiActive = false, guiActiveEditor = true, guiName = "Toggle Animation")]
+		public void ToggleAnimationEditor()
+		{
+			engineIsOn = !engineIsOn;
+		}
 		
 
-		public override void OnStart(PartModule.StartState state)
+		public void Start()
 		{
 			
 			engineStates = SetUpAnimation(EngineAnimationName, this.part);
 		
-			foreach (var me in this.part.FindModulesImplementing<ModuleEngines>())
+			if(HighLogic.LoadedSceneIsFlight)
 			{
-				engineIsOn = me.EngineIgnited;
-				modEng = me;
-				engineIsFX = false;
-			}
-		
-			foreach (var me in this.part.FindModulesImplementing<ModuleEnginesFX>())
-			{
-				engineIsOn = me.EngineIgnited;
-				modEngFX = me;
-				engineIsFX = true;
+				foreach (var me in this.part.FindModulesImplementing<ModuleEngines>())
+				{
+					engineIsOn = me.EngineIgnited;
+					modEng = me;
+					engineIsFX = false;
+				}
+			
+				foreach (var me in this.part.FindModulesImplementing<ModuleEnginesFX>())
+				{
+					engineIsOn = me.EngineIgnited;
+					modEngFX = me;
+					engineIsFX = true;
+				}
 			}
 			
 
@@ -58,32 +67,34 @@ namespace BDAnimationModules
 		
 		
 		
-		public override void OnUpdate()
+		public void Update()
 		{
-			if(!engineIsFX)
+			if(HighLogic.LoadedSceneIsFlight)
 			{
-				engineIsOn = modEng.EngineIgnited;
+				if(!engineIsFX)
+				{
+					engineIsOn = modEng.EngineIgnited;
+				}
+				else
+				{
+					engineIsOn = modEngFX.EngineIgnited;
+				}
 			}
-			else
-			{
-				engineIsOn = modEngFX.EngineIgnited;
-			}
-			
 
 			foreach(var anim in engineStates)
 			{
-				
-				
 				if(engineIsOn && anim.normalizedTime < WaitForAnimation)
 				{
 					anim.speed = 1;
-					if(engineIsFX) modEngFX.Shutdown();
-					else modEng.Shutdown();
-					
+					if(HighLogic.LoadedSceneIsFlight)
+					{
+						if(engineIsFX) modEngFX.Shutdown();
+						else modEng.Shutdown();
+					}
 				}
 				
 				
-				if(anim.normalizedTime >= WaitForAnimation && anim.speed > 0)
+				if(HighLogic.LoadedSceneIsFlight &&  anim.normalizedTime >= WaitForAnimation && anim.speed > 0)
 				{
 					if(engineIsFX) modEngFX.Activate();
 					else modEng.Activate();	
@@ -106,7 +117,6 @@ namespace BDAnimationModules
 					anim.speed = 0;
 					anim.normalizedTime = 0;
 				}
-				
 				
 			}
 			

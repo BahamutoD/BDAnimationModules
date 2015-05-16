@@ -6,6 +6,7 @@ namespace BDAnimationModules
 {
 	public class MouseAimLight : PartModule
 	{
+		[KSPField(isPersistant = true)]
 		public bool turretEnabled = false;  //user initiated
 		public bool deployed = false;  //actual status
 		public AnimationState[] deployStates;
@@ -39,9 +40,21 @@ namespace BDAnimationModules
 		public string yawTransformName = "aimRotate";
 		[KSPField(isPersistant = false)]
 		public string pitchTransformName = "aimPitch";
-		
-		
+
+		[KSPField(isPersistant = true)]
+		public Vector3 localAimPoint;
+
+		[KSPField(isPersistant = true)]
 		public bool mouseTracking = true;
+
+		[KSPField(isPersistant = false)]
+		public string emissiveObjectName = "lightPlane";
+
+		[KSPField(isPersistant = false)]
+		public string lightObjectName = "light";
+
+
+		Material emissiveMatRef;
 		
 		[KSPAction("Toggle Position Lock", KSPActionGroup.Light)]
 		public void AGToggleTracking(KSPActionParam param)
@@ -78,10 +91,17 @@ namespace BDAnimationModules
 			{
 				deployStates = SetUpAnimation(deployAnimName, this.part);
 			}
+
+			emissiveMatRef = part.FindModelTransform(emissiveObjectName).renderer.material;
 			
-			spotLight = part.FindModelTransform("light").GetComponent<Light>();
+			spotLight = part.FindModelTransform(lightObjectName).GetComponent<Light>();
 			spotlightIntensity = spotLight.intensity;
-			spotLight.intensity = 4;
+			spotLight.intensity = turretEnabled ? spotlightIntensity : 0;
+			spotLight.enabled = turretEnabled;
+
+			//emissive
+			float colorSet = spotLight.intensity/spotlightIntensity;
+			emissiveMatRef.SetColor("_EmissiveColor", new Color(colorSet,colorSet,colorSet,1));
 			
 			pitchTransform = part.FindModelTransform(pitchTransformName);
 			yawTransform = part.FindModelTransform(yawTransformName);
@@ -130,8 +150,6 @@ namespace BDAnimationModules
 					//deploying
 					if(turretEnabled)
 					{
-						
-						
 						if(anim.normalizedTime<1 && anim.speed<1)
 						{
 							anim.speed = 1;	
@@ -155,6 +173,7 @@ namespace BDAnimationModules
 					
 						if(turretZeroed)
 						{
+							spotLight.enabled = false;
 							anim.enabled = true;
 							if(anim.normalizedTime > 0 && anim.speed > -1)
 							{
@@ -171,40 +190,39 @@ namespace BDAnimationModules
 			
 			if(hasPower && deployed && (TimeWarp.WarpMode!=TimeWarp.Modes.HIGH || TimeWarp.CurrentRate == 1))
 			{
-				if(mouseTracking) Aim ();	
+				if(mouseTracking)
+				{
+					Aim(GetTarget());
+				}
+				else
+				{
+					Aim (transform.TransformPoint(localAimPoint));
+				}
+				spotLight.enabled = true;
 				spotLight.intensity = Mathf.MoveTowards(spotLight.intensity, spotlightIntensity, spotlightIntensity * TimeWarp.fixedDeltaTime);
 			}
 			if(!hasPower)
+			{
 				spotLight.intensity = Mathf.MoveTowards(spotLight.intensity, 0, 3*spotlightIntensity * TimeWarp.fixedDeltaTime);
+				if(spotLight.intensity == 0)
+				{
+					spotLight.enabled = false;
+				}
+			}
 			//emissive
 			float colorSet = spotLight.intensity/spotlightIntensity;
-			part.FindModelTransform("lightPlane").renderer.material.SetColor("_EmissiveColor", new Color(colorSet,colorSet,colorSet,1));
+			emissiveMatRef.SetColor("_EmissiveColor", new Color(colorSet,colorSet,colorSet,1));
 			
 		}
 		
-		
-		
-		private void Aim()
+		Vector3 GetTarget()
 		{
-			Vector3 target = Vector3.zero;
-			Vector3 targetYawOffset;
-			Vector3 targetPitchOffset;
-			
-			//auto target tracking
-			
-			Vessel targetVessel = null;
-			if(vessel.targetObject!=null)
+			Vector3 target;
+			if(vessel.targetObject!=null && vessel.targetObject.GetTransform()!=null)
 			{
-				targetVessel = vessel.targetObject.GetVessel();
+				target = vessel.targetObject.GetTransform ().position;
 			}
-			if(targetVessel!=null)
-			{
-				target = targetVessel.transform.position;
-			}
-			
-			//
-			
-			if (target == Vector3.zero)  //if no target from vessel Target, use mouse aim
+			else
 			{
 				Vector3 mouseAim = new Vector3(Input.mousePosition.x/Screen.width, Input.mousePosition.y/Screen.height, 0);
 				Ray ray = FlightCamera.fetch.mainCamera.ViewportPointToRay(mouseAim);
@@ -228,6 +246,16 @@ namespace BDAnimationModules
 					target = ray.direction * maxTargetingRange + FlightCamera.fetch.mainCamera.transform.position;	
 				}
 			}
+
+			localAimPoint = transform.InverseTransformPoint(target);
+			return target;
+		}
+		
+		private void Aim(Vector3 target)
+		{
+			Vector3 targetYawOffset;
+			Vector3 targetPitchOffset;
+			
 			targetDistance = (target - part.transform.position).magnitude;
 			spotlightIntensity = Mathf.Clamp(0.005f * targetDistance, 1, 4.5f);
 			targetYawOffset = yawTransform.position - target;
@@ -274,10 +302,7 @@ namespace BDAnimationModules
 						yawTransform.localRotation *= Quaternion.AngleAxis(-rotationSpeedYaw, yawAxis);
 					}
 				}
-				
-				
-			
-			
+
 				//pitch movement
 				if(targetPitchOffset.z > 0 && pitchTransform.localRotation.Yaw ()>-maxPitch*Mathf.Deg2Rad)
 				{
