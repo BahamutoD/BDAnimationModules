@@ -8,7 +8,7 @@ namespace BDAnimationModules
 {
 	public enum GearStates{Deployed, Deploying, Retracted, Retracting}
 	
-	public class BDAdjustableLandingGear : PartModule
+	public class BDAdjustableLandingGear : PartModule, IPartMassModifier, IPartCostModifier
 	{
 		
 		//tweakables
@@ -55,8 +55,8 @@ namespace BDAnimationModules
 		[KSPField(guiName = "Scale", isPersistant = true, guiActiveEditor = true, guiActive = false),
 			UI_FloatRange(maxValue = 3.00f, minValue = 0.60f, scene = UI_Scene.Editor, stepIncrement = 0.02f)]
 		public float algScale = 1;
-		
-		
+
+
 		//transforms
 		[KSPField(isPersistant = false)]
 		public string boundsCollider;
@@ -249,7 +249,10 @@ namespace BDAnimationModules
 		
 		//wheel colliders
 		WheelCollider[] wheelColliders;
-		
+
+		//mass
+		[KSPField]
+		public float baseMass = 1;
 		
 		
 		[KSPEvent(guiActive = false, guiActiveEditor = true, guiName = "Flip Side", active = true)]
@@ -311,9 +314,6 @@ namespace BDAnimationModules
 
 			//scale
 			transform.localScale = algScale * Vector3.one;	
-			//Debug.Log ("BD Landing gear Awake()");
-
-
 		}
 
 		
@@ -449,6 +449,11 @@ namespace BDAnimationModules
 
 			previousState = CurrentState;
 			part.SendMessage("GeometryPartModuleRebuildMeshData");
+
+			if(state != StartState.Editor)
+			{
+				part.mass = baseMass * Mathf.Pow(algScale, 3);
+			}
 		}
 
 		public override void OnLoad (ConfigNode node)
@@ -467,12 +472,25 @@ namespace BDAnimationModules
 
 		public void Update()
 		{
+			/*
 			if(HighLogic.LoadedSceneIsFlight)
 			{
 				RoundAdjustments();
 			}
+			*/
+			//part.mass = baseMass * Mathf.Pow(algScale, 2);
 		}
-		
+
+		public float GetModuleMass(float defaultMass)
+		{
+			return (baseMass * Mathf.Pow(algScale, 3))-defaultMass;
+		}
+
+		public float GetModuleCost(float defaultCost)
+		{
+			return (defaultCost * Mathf.Pow(algScale, 2))-defaultCost;
+		}
+
 		public void FixedUpdate()
 		{
 			float negTiltAngleAdjust = (legAngle < 0) ? 180 : 0;
@@ -651,15 +669,16 @@ namespace BDAnimationModules
 
 			SavePosAndRot();
 
-			UpdateFAR();
+			UpdateAero();
 		}
 
-		void UpdateFAR()
+		void UpdateAero()
 		{
 			if(previousState!=CurrentState)
 			{
 				if(CurrentState == GearStates.Retracted || CurrentState == GearStates.Deployed)
 				{
+					part.dragModel = CurrentState == GearStates.Deployed ? Part.DragModel.DEFAULT : Part.DragModel.NONE;
 					StartCoroutine(DelayedMeshUpdate());
 				}
 			}
@@ -670,7 +689,7 @@ namespace BDAnimationModules
 		IEnumerator DelayedMeshUpdate()
 		{
 			yield return new WaitForSeconds(1.25f);
-			Debug.Log ("BDAdjustableLandingGear : Rebuilding mesh data.");
+			Debug.Log ("BDAdjustableLandingGear : Rebuilding FAR mesh data.");
 			part.SendMessage("GeometryPartModuleRebuildMeshData");
 		}
 
