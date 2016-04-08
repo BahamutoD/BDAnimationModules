@@ -92,7 +92,7 @@ namespace BDAnimationModules
 				deployStates = SetUpAnimation(deployAnimName, this.part);
 			}
 
-			emissiveMatRef = part.FindModelTransform(emissiveObjectName).renderer.material;
+			emissiveMatRef = part.FindModelTransform(emissiveObjectName).GetComponent<Renderer>().material;
 			
 			spotLight = part.FindModelTransform(lightObjectName).GetComponent<Light>();
 			spotlightIntensity = spotLight.intensity;
@@ -280,17 +280,16 @@ namespace BDAnimationModules
 					
 					float minYaw = -(yawRange/2);
 					float maxYaw = yawRange/2;
-					if(targetYawOffset.x > 0 && yawTransform.localRotation.Roll () < maxYaw*Mathf.Deg2Rad)
+					if(targetYawOffset.x > 0 && Utils.Roll(yawTransform.localRotation) < maxYaw*Mathf.Deg2Rad)
 					{
 						yawTransform.localRotation *= Quaternion.AngleAxis(rotationSpeedYaw, yawAxis);
 					}
-					else if(targetYawOffset.x < 0 && yawTransform.localRotation.Roll () > minYaw*Mathf.Deg2Rad)
+					else if(targetYawOffset.x < 0 && Utils.Roll(yawTransform.localRotation) > minYaw*Mathf.Deg2Rad)
 					{
 						yawTransform.localRotation *= Quaternion.AngleAxis(-rotationSpeedYaw, yawAxis);
 					}
-					
-					
-					
+
+					//yawTransform.localRotation.eulerAngles.
 				}
 				else{
 					if(targetYawOffset.x > 0)
@@ -304,11 +303,11 @@ namespace BDAnimationModules
 				}
 
 				//pitch movement
-				if(targetPitchOffset.z > 0 && pitchTransform.localRotation.Yaw ()>-maxPitch*Mathf.Deg2Rad)
+				if(targetPitchOffset.z > 0 && Utils.Yaw(pitchTransform.localRotation)>-maxPitch*Mathf.Deg2Rad)
 				{
 					pitchTransform.localRotation *= Quaternion.AngleAxis(rotationSpeedPitch, pitchAxis);
 				}
-				else if(targetPitchOffset.z < 0 && pitchTransform.localRotation.Yaw () < - minPitch*Mathf.Deg2Rad)
+				else if(targetPitchOffset.z < 0 && Utils.Yaw(pitchTransform.localRotation) < - minPitch*Mathf.Deg2Rad)
 				{
 					pitchTransform.localRotation *= Quaternion.AngleAxis(-rotationSpeedPitch, pitchAxis);
 				}
@@ -323,8 +322,8 @@ namespace BDAnimationModules
 			bool yawReturned = false;
 			bool pitchReturned = false;
 			turretZeroed = false;
-			float yaw = yawTransform.localRotation.Roll() * Mathf.Rad2Deg;
-			float pitch = pitchTransform.localRotation.Yaw () * Mathf.Rad2Deg;
+			float yaw = Utils.Roll(yawTransform.localRotation) * Mathf.Rad2Deg;
+			float pitch = Utils.Yaw(pitchTransform.localRotation) * Mathf.Rad2Deg;
 			
 			//Debug.Log ("Pitch: "+pitch*Mathf.Rad2Deg+", Yaw: "+yaw*Mathf.Rad2Deg);
 			

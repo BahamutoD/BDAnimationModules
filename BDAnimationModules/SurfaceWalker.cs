@@ -28,6 +28,8 @@ namespace BDAnimationModules
 		Vector3 forwardForce = Vector3.zero;
 		Vector3 strafeForce = Vector3.zero;
 		float turnTorque = 0;
+
+		private Rigidbody _rigidbody;
 		
 		//check if feet are touching ground with raycast
 		bool feetAreDown = true;
@@ -80,11 +82,11 @@ namespace BDAnimationModules
 			
 			if(walkerEnabled && vessel!=null && vessel.loaded)
 			{
-				if(vessel.checkLanded() && !vessel.rigidbody.isKinematic && feetAreDown)
+				if(vessel.checkLanded() && !vessel.GetComponent<Rigidbody>().isKinematic && feetAreDown)
 				{
 					
 					//stickyFeet
-					if(stickyFeet) vessel.rigidbody.AddForce(10 * -part.transform.up);
+					if(stickyFeet) vessel.GetComponentCached<Rigidbody>(ref _rigidbody).AddForce(10 * -part.transform.up);
 					
 					
 					forwardForce = Vector3.MoveTowards(forwardForce, -vessel.ctrlState.pitch * moveForce * Vector3.forward, moveForce * moveAccelFactor * Time.fixedDeltaTime);
@@ -92,13 +94,13 @@ namespace BDAnimationModules
 					turnTorque = Mathf.MoveTowards(turnTorque, rotateTorque * vessel.ctrlState.roll, rotateTorque * moveAccelFactor*2 * Time.fixedDeltaTime);
 					
 					Vector3 force = Vector3.ClampMagnitude(forwardForce+strafeForce, moveForce);
-					
-					rigidbody.AddRelativeForce(force);	
-					rigidbody.AddRelativeTorque(Vector3.up * turnTorque);
+
+					vessel.GetComponentCached<Rigidbody>(ref _rigidbody).AddRelativeForce(force);	
+					vessel.GetComponentCached<Rigidbody>(ref _rigidbody).AddRelativeTorque(Vector3.up * turnTorque);
 					
 					//drag
-					rigidbody.AddTorque(-slowForce * rigidbody.angularVelocity);
-					rigidbody.AddForce(-slowForce * rigidbody.velocity);
+					vessel.GetComponentCached<Rigidbody>(ref _rigidbody).AddTorque(-slowForce * vessel.GetComponentCached<Rigidbody>(ref _rigidbody).angularVelocity);
+					vessel.GetComponentCached<Rigidbody>(ref _rigidbody).AddForce(-slowForce * vessel.GetComponentCached<Rigidbody>(ref _rigidbody).velocity);
 						
 					foreach(var wheel in part.FindModelTransforms("wheelCollider"))
 					{
