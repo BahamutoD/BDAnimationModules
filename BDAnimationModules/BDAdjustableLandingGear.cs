@@ -481,12 +481,12 @@ namespace BDAnimationModules
 			//part.mass = baseMass * Mathf.Pow(algScale, 2);
 		}
 
-		public float GetModuleMass(float defaultMass)
+		public float GetModuleMass(float defaultMass, ModifierStagingSituation sit)
 		{
 			return (baseMass * Mathf.Pow(algScale, 3))-defaultMass;
 		}
 
-		public float GetModuleCost(float defaultCost)
+		public float GetModuleCost(float defaultCost, ModifierStagingSituation sit)
 		{
 			return (defaultCost * Mathf.Pow(algScale, 2))-defaultCost;
 		}
@@ -1014,7 +1014,17 @@ namespace BDAnimationModules
 				steeringEnabled = false;
 			}
         }
-		
+
+	    public ModifierChangeWhen GetModuleMassChangeWhen()
+	    {
+	        return ModifierChangeWhen.FIXED;
+
+	    }
+
+	    public ModifierChangeWhen GetModuleCostChangeWhen()
+	    {
+            return ModifierChangeWhen.FIXED;
+        }
 	}
 }
 

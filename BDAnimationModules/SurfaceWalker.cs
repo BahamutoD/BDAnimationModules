@@ -80,11 +80,12 @@ namespace BDAnimationModules
 			
 			if(walkerEnabled && vessel!=null && vessel.loaded)
 			{
-				if(vessel.checkLanded() && !vessel.rigidbody.isKinematic && feetAreDown)
+                var rigidbody = vessel.GetComponent<Rigidbody>();
+				if(vessel.checkLanded() && !rigidbody.isKinematic && feetAreDown)
 				{
 					
 					//stickyFeet
-					if(stickyFeet) vessel.rigidbody.AddForce(10 * -part.transform.up);
+					if(stickyFeet) rigidbody.AddForce(10 * -part.transform.up);
 					
 					
 					forwardForce = Vector3.MoveTowards(forwardForce, -vessel.ctrlState.pitch * moveForce * Vector3.forward, moveForce * moveAccelFactor * Time.fixedDeltaTime);
